@@ -190,7 +190,7 @@ draw_display(){
 #------------------------------------------------------------------------------
 time_call(){
   local time=$(date +%T)
-  if [[ $time > 00:00:00 && $time < 12:00:00 ]]; then
+  if [[ $time > 05:00:00 && $time < 12:00:00 ]]; then
     main -m "morning, $USER" -a "camel" -t "static_time" -b "true"
   elif [[ $time > 12:00:00 && $time < 18:00:00 ]]; then
     main -m "afternoon, $USER" -a "wolf" -t "static_time" -b "true"
