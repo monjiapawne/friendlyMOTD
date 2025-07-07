@@ -190,7 +190,7 @@ time_call(){
 
   if [[ $time < 12:00:00 ]]; then
     main -m "good morning, $USER" -a "camel" -t "true" -b "true"
-  elif [[ $time > 12:00:00 && $time < 24:00:00 ]]; then
+  elif [[ $time > 12:00:00 && $time < 18:00:00 ]]; then
     main -m "good afternoon, $USER" -a "wolf" -t "true" -b "true"
   else
     main -m "good evening, $USER" -a "owl" -t "true" -b "true"
