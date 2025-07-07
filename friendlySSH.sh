@@ -20,7 +20,7 @@ DEFAULT_BORDERS="true"c
 # ARGUMENT PARSING
 #------------------------------------------------------------------------------
 # So clean!
-parse_arguments() {
+parse_args() {
     # Set defaults
     MESSAGE="$DEFAULT_MESSAGE"
     ASCII="$DEFAULT_ASCII"
@@ -36,7 +36,9 @@ parse_arguments() {
             -h|--help) print_help; exit 0;;
 
             *) shift ;;
-        esac done }
+        esac
+    done
+}
 #------------------------------------------------------------------------------
 # ASCII ART DEFINITIONS
 #------------------------------------------------------------------------------
@@ -68,7 +70,6 @@ cat=$(cat <<'EOF'
  <`-....__.'
 EOF
 )
-
 #------------------------------------------------------------------------------
 # UTILITY FUNCTIONS
 #------------------------------------------------------------------------------
@@ -90,13 +91,11 @@ print_help() {
     echo "Usage: $0 [options]"
     echo
     echo "Options:"
-    echo "──────────────────────────────────────────────────────────────"
     echo "  -m <message>    Set the message text"
     echo "  -a <ascii>      Set the ASCII art variable name"
     echo "  -t <true|false> Show the time (default: $DEFAULT_TIME_FLAG)"
     echo "  -b <true|false> Show borders (default: $DEFAULT_BORDERS)"
     echo "  -h, --help      Show this help message"
-    echo "──────────────────────────────────────────────────────────────"
 }
 
 #------------------------------------------------------------------------------
@@ -186,16 +185,54 @@ draw_display(){
 }
 
 #------------------------------------------------------------------------------
-# TIMING
+# TIMING - modular, removable.
 #------------------------------------------------------------------------------
+
+LOG_FILE="/tmp/.friendlyMOTD_log"
+
+parse_timing_args(){
+  while [[ $# -gt 0 ]]; do
+    case $1 in
+        -r) echo -e "[!] clearing log: $LOG_FILE"; [[ -f $LOG_FILE  ]] && rm "$LOG_FILE"; exit 0;;
+        *) main "$@"; exit 0;;  # pass through, to main if there are arguments - mainly for testing
+    esac done
+}
+
+# helper function
+already_logged() {
+  grep -q "$1 $2" "$LOG_FILE" 2>/dev/null
+}
+
 time_call(){
+  parse_timing_args "$@"
+  
+  local date=$(date +%F)
   local time=$(date +%T)
+  local period=""
+  local ascii=""
+  local message=""
+  
+  # get last date of log file, clear if not todays date
+  last_date=$(awk 'NF{print $1}' "$LOG_FILE" 2>/dev/null | tail -n1)
+  [[ $last_date != $date ]] && > "$LOG_FILE"
+
   if [[ $time > 05:00:00 && $time < 12:00:00 ]]; then
-    main -m "morning, $USER" -a "camel" -t "static_time" -b "true"
+      period="morning"  # ID in log
+      message="$period" # Custom message here (accepts variables)
+      ascii="camel"     # Ascii
   elif [[ $time > 12:00:00 && $time < 18:00:00 ]]; then
-    main -m "afternoon, $USER" -a "wolf" -t "static_time" -b "true"
+      period="afternoon"
+      message="$period"
+      ascii="wolf"
   else
-    main -m "evening, $USER" -a "cat" -t "static_time" -b "true"
+      period="evening"
+      message="$period"
+      ascii="cat"
+  fi
+
+  if ! already_logged "$date" "$period"; then
+    main -m "$period, $USER" -a "$ascii" -t "static_time" -b "true"
+    echo "$date $message" >> $LOG_FILE
   fi
 }
 
@@ -205,10 +242,10 @@ time_call(){
 #------------------------------------------------------------------------------
 
 main() {
-  parse_arguments "$@"
+  parse_args "$@"
   draw_display "$MESSAGE" "$ASCII" "$TIME_FLAG" "$BORDERS"
 }
 
 #main "$@"
 
-time_call
+time_call "$@"
