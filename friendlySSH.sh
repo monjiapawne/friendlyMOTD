@@ -4,9 +4,9 @@
 # CONFIGURATION
 #------------------------------------------------------------------------------
 # Colors definitions
-c1="\e[1;34m"  # ascii
+c1="\e[1;35m"  # ascii
 c2="\e[1;33m"  # border
-c3="\e[1;35m"  # message1
+c3="\e[1;34m"  # message1
 c4="\e[1;32m"  # message2
 x="\e[0m"      # reset color
 
@@ -14,7 +14,7 @@ x="\e[0m"      # reset color
 DEFAULT_MESSAGE="Good morning, $USER"
 DEFAULT_ASCII="owl"
 DEFAULT_TIME_FLAG="static_time"
-DEFAULT_BORDERS="true"
+DEFAULT_BORDERS="true"c
 
 #------------------------------------------------------------------------------
 # ARGUMENT PARSING
@@ -41,34 +41,31 @@ parse_arguments() {
 # ASCII ART DEFINITIONS
 #------------------------------------------------------------------------------
 camel=$(cat <<'EOF'
-                ,,__
-       ..  ..   / o._)
-     /--'/--\  \-'||
-   /        \_/ / |
- .'\  \__\  __.'.'
-   )\ |  )\ |
-   // \\ // \\
-  ||_  \\|_  \\_
-  '--' '--'' '--'
+              ,,__
+    ..  ..   / o._)
+   /--'/--\  \-'||
+  /        \_/ / |
+.'\  \__\  __.'.'
+  // \\ // \\
+ ||_  \\|_  \\_
+ '--' '--'' '--'
 EOF
 )
 wolf=$(cat <<'EOF'
-             .
-            / V\
-          / `  /
-        <<     |
-       /       |
-      /   \  \ /
-     (    ) | |
-  __|   _/_ | |
-<___\______)\__)
+         .
+        / V\
+       /`  /
+     <<    |
+    /  \ \ /
+  _|  /_ | |
+<__\____)\__)
 EOF
 )
-owl=$(cat <<'EOF'
-  , ___
-`\/{o,o}
- / /)  )
-/,--"-"-
+cat=$(cat <<'EOF'
+  |\'/-..--.
+ / _ _   ,  ;
+`~=`Y'~_<._./
+ <`-....__.'
 EOF
 )
 
@@ -109,7 +106,8 @@ append_day(){
   local max=$(($1+2))
   local bor="$2"
   local spacesleft spacesright
-  local time="$(date "+%a %d %I%p")"
+  local time="$(date "+%a %I:%M %p" | tr '[:upper:]' '[:lower:]')"
+  #local time="$(date "+%a %d %I%p")"
   read spacesleft spacesright <<< "$(calc_border_padding $max "$time")"
   printf "${bor}%*s${c3}%s${c2}%*s${bor}\n" "$spacesleft" "" "$time" " $spacesright" ""
 }
@@ -121,6 +119,11 @@ append_message(){
   local spacesleft spacesright
   read spacesleft spacesright <<< "$(calc_border_padding $max "$message")"
   printf "${bor}%*s${c4}%s${c2}%*s${bor}\n" "$spacesleft" "" "$message" " $spacesright" ""
+}
+
+append_sysinfo() {
+  last_login="$(last -i -n 2 $USER | awk 'NR==2 {print $4, $5, $6, $7}')"
+  append_message "$max" "$bor" "Last login: $last_login"
 }
 
 #------------------------------------------------------------------------------
@@ -187,13 +190,12 @@ draw_display(){
 #------------------------------------------------------------------------------
 time_call(){
   local time=$(date +%T)
-
-  if [[ $time < 12:00:00 ]]; then
-    main -m "good morning, $USER" -a "camel" -t "true" -b "true"
+  if [[ $time > 00:00:00 && $time < 12:00:00 ]]; then
+    main -m "morning, $USER" -a "camel" -t "static_time" -b "true"
   elif [[ $time > 12:00:00 && $time < 18:00:00 ]]; then
-    main -m "good afternoon, $USER" -a "wolf" -t "true" -b "true"
+    main -m "afternoon, $USER" -a "wolf" -t "static_time" -b "true"
   else
-    main -m "good evening, $USER" -a "owl" -t "true" -b "true"
+    main -m "evening, $USER" -a "cat" -t "static_time" -b "true"
   fi
 }
 
