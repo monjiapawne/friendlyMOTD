@@ -11,10 +11,10 @@ c4="\e[1;32m"  # message2
 x="\e[0m"      # reset color
 
 # Default values
-DEFAULT_MESSAGE="Good morning, $USER"
-DEFAULT_ASCII="owl"
+DEFAULT_MESSAGE="Hi, $USER"
+DEFAULT_ASCII="camel"
 DEFAULT_TIME_FLAG="static_time"
-DEFAULT_BORDERS="true"c
+DEFAULT_BORDERS="true"
 
 #------------------------------------------------------------------------------
 # ARGUMENT PARSING
